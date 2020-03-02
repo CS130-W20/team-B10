@@ -32,5 +32,13 @@ def scheduler(scores, distances, attractions, num_attr, num_rest, hotel, hours):
     # get top attractions for the day
     top_k_attr_rest_idx = attraction_popping(scores, attractions, num_attr, num_rest)
     # calculate distance from hotel
-    hotel_to_attraction = []
+    hotel_to_attraction = [abs((hotel.lat-a.lat))+abs((hotel.long-a.lon)) for a in top_k_attr_rest_idx]
+    hotel_to_attraction_sorted = np.array(hotel_to_attraction).argsort()
+    #find closest attraciton that is not a restaurant
+    closest_attraction = None
+    for a in hotel_to_attraction_sorted:
+        if top_k_attr_rest_idx[a].is_restaurant == False:
+            closest_attraction = top_k_attr_rest_idx.pop(a)
+            break
+
     pass
