@@ -21,4 +21,5 @@ def search_places(location, radius, types, api):
         results =  json.loads(res.content)
         places.extend(results['results'])
         time.sleep(2)
+    
     return places
