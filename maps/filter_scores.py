@@ -5,22 +5,22 @@ from sklearn.cluster import KMeans
 from collections import namedtuple
 import json
 
-Attraction = namedtuple('Attraction', ['latlon', 'score', 'is_hotel', 'is_restaurant', 'metadata_google'])
+Attraction = namedtuple('Attraction', ['places_id','lat','lon', 'score', 'is_restaurant'])
+Hyperparameters = namedtuple('Hyperparameters', ['num_iter', 'neighborhood_frac', 'bias', 'random_max', 'random_min', 'decay'])
 
 #####################################################################
 # K-means Clustering
 #####################################################################
 def get_cluster_id_list(attraction_list, num_clusters):
     # use k-means clustering
-    xy_list = [attraction.latlon for attraction in attraction_list]
-    xy_list = np.array(xy_list)
+    xy_list = np.array([(attraction.lat,attraction.lon) for attraction in attraction_list])
     kmeans = KMeans(n_clusters=num_clusters).fit(xy_list)
     centroids = kmeans.cluster_centers_ 
     cluster_id_list = kmeans.labels_ 
     return cluster_id_list, centroids
 
 def cluster_attraction_list(cluster_id_list, attraction_list, num_clusters):
-    # seperate xys_list by clusters
+    # seperate by clusters
     attraction_list_clusters = [[] for _ in range(num_clusters)]
     for i, attraction in enumerate(attraction_list):
         k = int(cluster_id_list[i])
@@ -30,62 +30,60 @@ def cluster_attraction_list(cluster_id_list, attraction_list, num_clusters):
 #####################################################################
 # Score Filtering/Curation 
 #####################################################################
-def select_locales(S, metadata):
-    num_neighbors, = metadata
-    S_idxs = np.argsort(S, axis=0)[-num_neighbors:]
-    return S_idxs
+def attraction_popping(scores, attractions, num_attr, num_rest):
+    #np2int = lambda x: [int(y) for y in x]
+    # sort attractions by scores
+    sorted_score_index = scores.argsort()[::-1]
+    sorted_attractions = []
+    for score_index in sorted_score_index:
+        sorted_attractions.append(attractions[int(score_index)])
+    top_k_attr_rest_idx = []
+    # collect top k attractions and restaurants
+    for a in sorted_attractions:
+        idx = attractions.index(a)
+        if a.is_restaurant == False and num_attr > 0:
+            top_k_attr_rest_idx.append(idx)
+            num_attr -= 1
+        if a.is_restaurant == True and num_rest > 0:
+            top_k_attr_rest_idx.append(idx)
+            num_rest -= 1
+    return top_k_attr_rest_idx
 
-def filter_attraction_list(attraction_list, max_itr, num_neighbors, sensitivity, bias):
+def filter_attraction_list(attraction_list, L, l_avg, k_attractions, k_restaurants, hyperparameters):
+    # hyperparameters
+    bias = hyperparameters.bias
+    random_max = hyperparameters.random_max
+    random_min = hyperparameters.random_min
+    decay = hyperparameters.decay
+
+    # get neighborhoods
+    kna = k_attractions/hyperparameters.neighborhood_frac
+    knr = k_restaurants/hyperparameters.neighborhood_frac
+
     # get scores
-    s_list = [attraction.score for attraction in attraction_list]
-    S = np.array(s_list)
-    S_original = np.array(s_list)
-
-    # get distance matrix
-    L = get_dists(attraction_list)
-    l_avg = np.mean(L)
-
-    metadata = (num_neighbors,)
-    for _ in range(max_itr):
-        S_idxs = select_locales(S, metadata)
+    S = np.array([attraction.score for attraction in attraction_list])
+    S_original = S.copy() 
+    for i in range(hyperparameters.num_iter):
+        S_idxs = attraction_popping(S, attraction_list, kna, knr)
         S_neighbors = ((l_avg-L)*S)[S_idxs]
         S_agg = np.sum(S_neighbors, axis=0)
-        S_tilde = S_agg + bias*S_original*S_original
-        #S = 10*sigmoid(sensitivity*S_tilde/np.max(S_tilde))
+        stdev = np.max((random_max-decay*i, random_min))
+        S_tilde = S_agg + bias*S_original*S_original + np.random.normal(0,stdev)
         S = 10*S_tilde/np.max(S_tilde)
-        '''
-        # iteratively refine scores
-        # collect neighbor scores
-        S_avg = np.mean(S)
-        S_neighbors = (l_avg-L)*S# - L*(S-S_avg)
-        # aggregate to top num_neighbor neighbors with the highest scores
-        S_neighbors_filtered = np.sort(S_neighbors, axis=0)[-num_neighbors:]
-        S_agg = np.sum(S_neighbors_filtered, axis=0)
-        # bias for the original score 
-        S_tilde = S_agg + bias*S_original*S_original
-        # normalize scores 
-        S_tilde = (S_tilde-np.mean(S_tilde))
-        S = 10*sigmoid(sensitivity*S_tilde/np.max(S_tilde))
-        '''
-    
-    # reconstruct xys_list (do not do in-place modification) 
-    xys_filtered_list = []
-    for i, s in enumerate(S):
-        x,y = attraction_list[i].latlon
-        xys_filtered_list.append((x,y,s))
-    return xys_filtered_list
+
+    return S
 
 def get_dists(attraction_list):
     # get l2 distance between all node pairs
     # Note: this code can be optimized in future releases
     N = len(attraction_list)
     L = np.zeros(shape=(N,N)) 
-    xy_list = [attraction.latlon for attraction in attraction_list]
+    xy_list = [(attraction.lat,attraction.lon) for attraction in attraction_list]
     for i in range(N):
         for j in range(i, N):
             coord1 = np.array(xy_list[i])
             coord2 = np.array(xy_list[j])
-            l = np.linalg.norm(coord1-coord2) 
+            l = np.linalg.norm(coord1-coord2, ord=1) 
             L[i][j] = l
             L[j][i] = l
     return L 
@@ -97,8 +95,10 @@ def sigmoid(x):
 #####################################################################
 # Synthetic Dataset Generation
 #####################################################################
-def gen_syn_loc(synthetic_params, restaurant_thresh, hotel_thresh):
-    assert hotel_thresh + restaurant_thresh < 1
+Attraction = namedtuple('Attraction', ['places_id','lat','lon', 'score', 'is_restaurant'])
+def gen_syn_loc(synthetic_params, restaurant_thresh):
+    assert restaurant_thresh < 1
+
     xys_list = []
     for param in synthetic_params:
         # generate 2D gaussian
@@ -112,58 +112,36 @@ def gen_syn_loc(synthetic_params, restaurant_thresh, hotel_thresh):
             s = 10*random.random()
             xys_list.append((x,y,s))
     random.shuffle(xys_list)
-    json_list = []
+
+    attraction_list = []
     for xys in xys_list:
         x,y,s = xys
-        is_hotel = random.random() < hotel_thresh
         is_restaurant = random.random() < restaurant_thresh
-        locale_type = 'hotel' if is_hotel else ('restaurant' if is_restaurant else 'other')
-        metadata_google = json.dumps({'latitude': x, 'longitude':y, 'google_score': s, 'type': locale_type, 'metadata': random.random()*1000})
-        json_list.append(metadata_google)
-    print(json_list)
-    return json_list
+        locale_type = 'restaurant' if is_restaurant else 'other'
+        attraction_list.append(Attraction('asdf',x,y,s,is_restaurant))
 
-float_list = lambda x_list: [float(x) for x in x_list]
-def json2attraction(metadata_google):
-    metadata_google_decoded = json.loads(metadata_google)
-
-    latlon_raw = (metadata_google_decoded['latitude'],metadata_google_decoded['longitude'])
-    score_raw = metadata_google_decoded['google_score']
-    is_restaurant_raw = metadata_google_decoded['type'] == 'restaurant'
-    is_hotel_raw = metadata_google_decoded['type'] == 'hotel'
-
-    latlon = tuple(float_list(latlon_raw))
-    score = float(score_raw)
-    is_restaurant = bool(is_restaurant_raw)
-    is_hotel = bool(is_hotel_raw)
-    assert len(latlon) == 2
-    return Attraction(latlon, score, is_hotel, is_restaurant, metadata_google)
-
-def attraction2xys(attraction):
-    x,y = attraction.latlon
-    s = attraction.score
-    return x,y,s
+    return attraction_list
 
 #####################################################################
 # Plotting Utilities 
 #####################################################################
-def plot(xys_list, ax, k=None):
+def plot(S, attraction_list, ax, k=None):
     color = 'grey'
     color_sel = 'red'
     if k is None:
         # setting up plottig parameters 
-        x_list = [xys[0] for xys in xys_list]
-        y_list = [xys[1] for xys in xys_list]
-        s_list = [xys[2] for xys in xys_list]
+        x_list = [attraction.lat for attraction in attraction_list]
+        y_list = [attraction.lon for attraction in attraction_list]
+        s_list = S
         plot_helper(x_list, y_list, s_list, ax, color)
     else:
         # setting up plottig parameters 
-        s_list = [xys[2] for xys in xys_list]
+        s_list = S
         s_list_topk = (np.array(s_list).argsort()[-k:][::-1]).tolist()
         x_list1, y_list1, s_list1 = [], [], []
         x_list2, y_list2, s_list2 = [], [], []
-        for i, xys in enumerate(xys_list):
-            x,y,s = xys
+        for i, attraction in enumerate(attraction_list):
+            x,y,s = attraction.lat,attraction.lon,attraction.score
             if i in s_list_topk:
                 x_list2.append(x)
                 y_list2.append(y)
@@ -185,57 +163,64 @@ def plot_helper(x_list, y_list, s_list, ax, color):
 # Main Function 
 #####################################################################
 def main():
-    # dataset configurations
-    synthetic_params = [(35, (0,-10), (5,6)), (33, (12,8), (7,7))]
-    # clustering configurations
-    num_days=2
-    # topk?
-    k = 8 
-    # filtering configurations
-    max_itr=5000
-    num_neighbors=k
-    sensitivity=8
-    bias=10
-
+    # TODO: |places| < |days|
     # generate synthetic datasets
+    synthetic_params = [(35, (0,-10), (5,6)), (33, (12,8), (7,7))]
     random.seed(123)
-    json_list = gen_syn_loc(synthetic_params, 0.05, 0.1)
-    
-    attraction_list = [json2attraction(metadata_google) for metadata_google in json_list]
-    xys_list = [attraction2xys(attraction) for attraction in attraction_list]
+    attraction_list = gen_syn_loc(synthetic_params, 0.1)
+    # clustering configurations
+    num_days = 2
+    # topk configurations
+    hours = (8,23)
+    have_breakfast = False
+    k_attractions = 10 # TODO: grab this from the maps API/ database
+    k_restaurants = 3 if have_breakfast else 2 # TODO: grab this from the maps API/ database
+    # filtering configurations
+    num_iter = 5000
+    neighborhood_frac = 1.5
+    bias = 10
+    random_max = 5
+    random_min = 1
+    decay = 5e-2
+    hyperparameters = Hyperparameters(num_iter, neighborhood_frac, bias, random_max, random_min, decay)
 
     # generate cluster by number of days
     cluster_id_list, centroids = get_cluster_id_list(attraction_list, num_days)
     attraction_list_clusters = cluster_attraction_list(cluster_id_list, attraction_list, num_days)
 
     # plotting the clusters
-    xys_list_temp = xys_list.copy()
-    xys_list_temp.extend([(centroid[0], centroid[1], float('inf')) for centroid in centroids])
+    attraction_list_copy = attraction_list.copy()
+    attraction_list_copy.extend([Attraction('aaa', centroid[0], centroid[1], float('inf'), False) for centroid in centroids])
+    S = np.array([attraction.score for attraction in attraction_list] + [float('inf'),float('inf')])
     ax = plt.gca()
     ax.set_title('Input Scores and Cluster Centroids')
     ax.set_xlabel('X location')
     ax.set_ylabel('Y location')
-    plot(xys_list_temp, ax, k=num_days)
+    plot(S, attraction_list_copy, ax, k=num_days)
     plt.show()
 
     for i, attraction_list in enumerate(attraction_list_clusters):
+        # get distance matrix
+        L = get_dists(attraction_list)
+        l_avg = np.mean(L)
         # curate the score list of each cluster
-        xys_filtered_list = filter_attraction_list(attraction_list, max_itr=max_itr, num_neighbors=num_neighbors, sensitivity=sensitivity, bias=bias)
+        S = filter_attraction_list(attraction_list, L, l_avg, k_attractions, k_restaurants, hyperparameters)
 
         # Show the pre- and post-filtering scores and selections
-        '''
         ax1 = plt.subplot(121)
-        ax1.set_title('Input Scores (topk={}) for Cluster {}'.format(k, i))
+        ax1.set_title('Input Scores for Cluster {}'.format(i))
         ax1.set_xlabel('X location')
         ax1.set_ylabel('Y location')
-        plot(xys_list, ax1, k=k)
-        '''
+        plot(S, attraction_list, ax1, k=5)
         ax2 = plt.subplot(111)
-        ax2.set_title('Filtered Scores (topk={}) for Cluster {}'.format(k, i))
+        ax2.set_title('Filtered Scores for Cluster {}'.format(i))
         ax2.set_xlabel('X location')
         ax2.set_ylabel('Y location')
-        plot(xys_filtered_list, ax2, k=k)
+        plot(S, attraction_list, ax2, k=5)
         plt.show()
+        pass
+    
+    return S, L, attraction_list, k_attractions, k_restaurants, attraction_hotel, hours
 
 if __name__ == '__main__':
     main()
