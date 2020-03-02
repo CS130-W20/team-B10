@@ -32,4 +32,5 @@ def scheduler(scores, distances, attractions, num_attr, num_rest, hotel, hours):
     # get top attractions for the day
     top_k_attr_rest_idx = attraction_popping(scores, attractions, num_attr, num_rest)
     # calculate distance from hotel
+    hotel_to_attraction = []
     pass
