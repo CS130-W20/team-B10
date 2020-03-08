@@ -1,3 +1,4 @@
+{% extends "maps/base.html" %}
 {% load static %}
 {% block header %}
 <link href="https://fonts.googleapis.com/css?family=Pacifico&display=swap" rel="stylesheet">
@@ -20,12 +21,14 @@
 {% block content %}
 
 <body>
-  <div class="container h-100">
+  <div class="container h-50">
     <div class="row justify-content-center align-items-center h-100">
-        <div id="surveyElement" style="display:inline-block;width:100%;"></div>
+        <div id="surveyElement" style="display:inline-block;width:130%;"></div>
         <div id="surveyResult"></div>
     </div>
+    <!-- <a href="{% url 'site-display' %}">Display</a> -->
   </div>
+
   <script>
     Survey
     .StylesManager
@@ -48,7 +51,7 @@ var json = {
             questions: [
                 {
                     type: "radiogroup",
-                    name: "startday",
+                    name: "start_day",
                     title: "When would you like to start your day during the trip?",
                     choices: [
                         "7:00 am", "8:00 am", "9:00 am", "10:00 am", "11:00 am"
@@ -59,7 +62,7 @@ var json = {
             questions: [
                 {
                     type: "radiogroup",
-                    name: "endday",
+                    name: "end_day",
                     title: "When would you like to end your day during the trip?",
                     choices: [
                         "5:00 pm", "6:00 pm", "7:00 pm", "8:00 pm", "9:00 pm"
@@ -70,10 +73,21 @@ var json = {
             questions: [
                 {
                     type: "radiogroup",
-                    name: "numberofattractions",
+                    name: "number_of_attractions",
                     title: "How many attractions would you like to visit everyday?",
                     choices: [
-                        "1", "2", "3", "4"
+                        "1", "2", "3", "4", "5"
+                    ],
+                }
+            ]
+        }, {
+            questions: [
+                {
+                    type: "radiogroup",
+                    name: "have_breakfast",
+                    title: "Would you like to have breakfast?",
+                    choices: [
+                        "Yes", "No",
                     ],
                 }
             ]
@@ -81,19 +95,37 @@ var json = {
     ],
 };
 
-window.survey = new Survey.Model(json);
+// store survey result to local storage
+var survey = new Survey.Model(json);
+var storageName = "survey_result";
+function saveSurveyData(survey) {
+    var data = survey.data;
+    window
+        .localStorage
+        .setItem(storageName, JSON.stringify(data));
+}
 
+// survey
+//     .onComplete
+//     .add(function (result) {
+//         document
+//             .querySelector('#surveyResult')
+//             .textContent = "Result JSON:\n" + JSON.stringify(result.data, null, 3);
+//     });
+
+// redirect to display after completion
 survey
     .onComplete
-    .add(function (result) {
-        document
-            .querySelector('#surveyResult')
-            .textContent = "Result JSON:\n" + JSON.stringify(result.data, null, 3);
+    .add(function (survey, options) {
+        saveSurveyData(survey);
+        window.location.replace('../display/');
+
+
     });
 
 $("#surveyElement").Survey({model: survey});
 
-  </script>
+</script>
 
   <!-- <script type="text/javascript" src="{% static 'map/js/survey.js'%}"></script> -->
   <!-- <div class="center-block">

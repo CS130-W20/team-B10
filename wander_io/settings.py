@@ -24,7 +24,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config('DEBUG') != 'FALSE'
+DEBUG = config('DEBUG') != 'false'
 
 ALLOWED_HOSTS = ['localhost','wander-io.com']
 
@@ -146,6 +146,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # Gcloud Bucket storage
 if os.getenv('GS_BUCKET_NAME'):
     INSTALLED_APPS.insert(0, 'collectfast')
+    COLLECTFAST_DEBUG = True
     DEFAULT_FILE_STORAGE = 'wander_io.storages.GoogleCloudMediaStorage'
     STATICFILES_STORAGE = 'wander_io.storages.GoogleCloudStaticStorage'
     GS_DEFAULT_ACL = 'publicRead'
