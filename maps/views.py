@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from .placesapi import search_places
-from datetime import datetime
+import datetime
 from .display_utils import *
 import json
 from .display_utils import format_schedule
@@ -30,10 +30,10 @@ def display(request):
     end_date = dest_and_dates['date'][1]
     num_days = days_between(start_date, end_date)
 
-    start_in_time = datetime.strptime(survey_result['start_day'], "%I:%M %p")
-    start_out_time = datetime.strftime(start_in_time, "%H:%M:%S")
-    end_in_time = datetime.strptime(survey_result['end_day'], "%I:%M %p")
-    end_out_time = datetime.strftime(end_in_time, "%H:%M:%S")
+    start_in_time = datetime.datetime.strptime(survey_result['start_day'], "%I:%M %p")
+    start_out_time = datetime.datetime.strftime(start_in_time, "%H:%M:%S")
+    end_in_time = datetime.datetime.strptime(survey_result['end_day'], "%I:%M %p")
+    end_out_time = datetime.datetime.strftime(end_in_time, "%H:%M:%S")
 
     hours = (start_out_time, end_out_time)
     k_attractions = survey_result['number_of_attractions']

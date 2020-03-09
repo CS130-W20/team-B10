@@ -1,6 +1,6 @@
 from collections import namedtuple
 from .filter_scores import get_cluster_id_list, cluster_attraction_list
-from datetime import datetime
+import datetime
 
 
 attr_info = namedtuple('attr_info', ['name','location'])
@@ -9,8 +9,8 @@ Hyperparameters = namedtuple('Hyperparameters', ['num_iter', 'neighborhood_frac'
 
 
 def days_between(d1, d2):
-    d1 = datetime.strptime(d1, "%m/%d/%Y")
-    d2 = datetime.strptime(d2, "%m/%d/%Y")
+    d1 = datetime.datetime.strptime(d1, "%m/%d/%Y")
+    d2 = datetime.datetime.strptime(d2, "%m/%d/%Y")
     return abs((d2 - d1).days)
 
 
