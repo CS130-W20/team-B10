@@ -59,7 +59,8 @@ def compile(time, attraction):
 def scheduler(scores, distances, attractions, num_attr, num_rest, hotel, hours):
     # get travel details
     tid = hours[1] - hours[0]
-    avg_travel_time = np.mean(distances)/40
+    pace = 0.3
+    avg_travel_time = np.mean(distances)/pace
     tpr = 1
     tpa = (tid - tpr*num_rest - (num_attr+num_rest-1)*avg_travel_time)/num_attr
     temp_schedule = []
@@ -86,7 +87,7 @@ def scheduler(scores, distances, attractions, num_attr, num_rest, hotel, hours):
         if top_k_attr_rest_idx[a].is_restaurant == is_restaurant:
             closest_attraction = attr_and_rest.pop(a)
             closest_attraction_travel_dist = hotel_to_attraction[a]
-            closest_attraction_travel_time = closest_attraction_travel_dist/40
+            closest_attraction_travel_time = closest_attraction_travel_dist/pace
             temp_schedule.append(closest_attraction)
             temp_time.append(closest_attraction_travel_time)
             time += closest_attraction_travel_time
@@ -111,12 +112,12 @@ def scheduler(scores, distances, attractions, num_attr, num_rest, hotel, hours):
             num_attr_left -= 1
             time += tpa
         temp_schedule.append(next_location)
-        travel_time = next_dist/40
+        travel_time = next_dist/pace
         temp_time.append(travel_time)
         time += travel_time
     # add time back to hotel
     if temp_schedule[-1] != FREE:
-        travel_time = hotel_to_attraction[top_k_attr_rest_idx.index(temp_schedule[-1])]/40
+        travel_time = hotel_to_attraction[top_k_attr_rest_idx.index(temp_schedule[-1])]/pace
         temp_time.append(travel_time)
         time += travel_time
     # calculate attraction scaling factor
