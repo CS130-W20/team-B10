@@ -71,22 +71,23 @@ def scheduling(attraction_list_clusters, k_attractions, k_restaurants, hotel, ho
 
 def format_schedule(start_date, end_date, attractions, schedule, tpa, tpr, hotel_name, wake, sleep):
     events_list = []
-
+    cur_time = datetime.datetime.strptime(start_date+"T"+wake, '%m/%d/%YT%H:%M:%S')
+    start_date = cur_time.strftime('%Y-%m-%d')
     start = {'title': hotel_name, 'start':start_date+"T00:00:00", 'end':start_date+"T"+wake}
     events_list.append(start)
-    cur_time = datetime.datetime.strptime(start_date+"T"+wake, '%Y-%m-%dT%H:%M:%S')
-    for day in schedule:
+    day_num = 0
+    for day in schedule_list:
         for events in day:
             if isinstance(events, (int, float)):
                 cur_time += datetime.timedelta(hours=events)
             else:
-                name = attractions[events.places_id].name
+                name = placeid_dict[events.places_id].name
                 start_time = cur_time.strftime('%Y-%m-%dT%H:%M:%S')
                 if events.is_restaurant:
-                    cur_time += datetime.timedelta(hours=tpr)
+                    cur_time += datetime.timedelta(hours=tpr_list[day_num])
                     name = 'Eat at: ' + name
                 else:
-                    cur_time += datetime.timedelta(hours=tpa)
+                    cur_time += datetime.timedelta(hours=tpa_list[day_num])
                 end_time = cur_time.strftime('%Y-%m-%dT%H:%M:%S')
                 event = {'title': name, 'start':start_time, 'end':end_time}
                 events_list.append(event)
@@ -96,6 +97,7 @@ def format_schedule(start_date, end_date, attractions, schedule, tpa, tpr, hotel
         cur_time = datetime.datetime.strptime(wake_datetime, '%Y-%m-%dT%H:%M:%S')
         end_day = {'title': hotel_name, 'start':sleep_date+"T"+sleep, 'end':wake_datetime}
         events_list.append(end_day)
+        day_num += 1
     return events_list
 
 
@@ -103,3 +105,14 @@ def find_hotel(centroids, api, radius):
     lat, lon = np.mean(centroids, axis=0)
     hotels = search_places(str(lat) + ',' + str(lon), radius, 'lodging', api)
     return hotels[0]
+
+
+def make_dict(attrs):
+    place_id = {'FREE': attr_info("Free Time", '')}
+    for a in attrs:
+        if 'name' not in a:
+            a['name'] = ''
+        if 'vicinity' not in a:
+            a['vicinity'] = ''
+        place_id[a['place_id']] = attr_info(a['name'], a['vicinity'])
+    return place_id
