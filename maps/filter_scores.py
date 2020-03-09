@@ -1,6 +1,6 @@
 import random
 import numpy as np
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plts
 from sklearn.cluster import KMeans
 from collections import namedtuple
 import json
@@ -223,4 +223,5 @@ def main():
     return S, L, attraction_list, k_attractions, k_restaurants, attraction_hotel, hours
 
 if __name__ == '__main__':
-    main()
+    # main()
+    pass
