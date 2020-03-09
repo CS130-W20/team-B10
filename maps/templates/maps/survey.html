@@ -114,18 +114,36 @@ function saveSurveyData(survey) {
 //     });
 
 // redirect to display after completion
+
+function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie != '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = jQuery.trim(cookies[i]);
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+var csrftoken = getCookie('csrftoken');
+
 survey
     .onComplete
     .add(function (survey, options) {
         saveSurveyData(survey);
-        window.location.replace('../display/');
-
-
+        window.location.replace('../display?dest_and_dates=' + localStorage.getItem("dest_and_dates") + '&survey_result=' + localStorage.getItem("survey_result"));
     });
 
 $("#surveyElement").Survey({model: survey});
 
 </script>
+
 <script>
     //parse url to get parameters
     function parseURLParams(url) {
