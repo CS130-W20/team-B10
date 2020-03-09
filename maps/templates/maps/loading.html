@@ -94,12 +94,12 @@
       <h3>Creating Your Itinerary...</h3>
       <img src="{% static 'maps\media\load_img\cloud.png' %}" alt="cloud1" class="cloud1" />
       <img src="{% static 'maps\media\load_img\cloud.png' %}" alt="cloud2" class="cloud2" />
-      <img src="{% static 'maps\media\load_img\cloudr.png' %}" alt="cloud3" class="cloud3" />
+      <img src="{% static 'maps\media\load_img\cloud.png' %}" alt="cloud3" class="cloud3" />
     </div>
     <script>
-      $('document').ready(function(){
-        window.location.replace('../display?dest_and_dates=' + localStorage.getItem("dest_and_dates") + '&survey_result=' + localStorage.getItem("survey_result"));
-        });
+        $('document').ready(function(){
+          window.location.replace('../display?dest_and_dates=' + localStorage.getItem("dest_and_dates") + '&survey_result=' + localStorage.getItem("survey_result"));
+          });
     </script>
   </body>
 </html>
