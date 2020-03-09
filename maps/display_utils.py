@@ -2,6 +2,12 @@ from collections import namedtuple
 from .filter_scores import get_cluster_id_list, cluster_attraction_list
 from datetime import datetime
 
+
+attr_info = namedtuple('attr_info', ['name','location'])
+Attraction = namedtuple('Attraction', ['places_id','lat','lon', 'score', 'is_restaurant'])
+Hyperparameters = namedtuple('Hyperparameters', ['num_iter', 'neighborhood_frac', 'bias', 'random_max', 'random_min', 'decay'])
+
+
 def days_between(d1, d2):
     d1 = datetime.strptime(d1, "%m/%d/%Y")
     d2 = datetime.strptime(d2, "%m/%d/%Y")
@@ -9,7 +15,6 @@ def days_between(d1, d2):
 
 
 def attr_to_tup(attrs, is_rest=False):
-    Attraction = namedtuple('Attraction', ['places_id','lat','lon', 'score', 'is_restaurant'])
     attr_tup = []
     for a in attrs:
         if 'name' not in a:
@@ -32,7 +37,6 @@ def clustering(num_days, have_breakfast, k_attractions, attraction_list):
     random_max = 5
     random_min = 1
     decay = 5e-2
-    Hyperparameters = namedtuple('Hyperparameters', ['num_iter', 'neighborhood_frac', 'bias', 'random_max', 'random_min', 'decay'])
     hyperparameters = Hyperparameters(num_iter, neighborhood_frac, bias, random_max, random_min, decay)
 
     # generate cluster by number of days
@@ -42,8 +46,6 @@ def clustering(num_days, have_breakfast, k_attractions, attraction_list):
     return attraction_list_clusters, centroids
 
 
-Attraction = namedtuple('Attraction', ['places_id','lat','lon', 'score', 'is_restaurant'])
-attr_info = namedtuple('attr_info', ['name','location'])
 def format_schedule(start_date, end_date, attractions, schedule, tpa, tpr, hotel_name, wake, sleep):
     events_list = []
 
