@@ -108,7 +108,7 @@ def scheduler(scores, distances, attractions, num_attr, num_rest, hotel, hours):
     temp_time.append(travel_time)
     time += travel_time
     # calculate attraction scaling factor
-    scale = (time - sum(temp_time))/(tpr*num_rest+tpa*num_attr)
+    scale = (tid - sum(temp_time))/(tpr*num_rest+tpa*num_attr)
     tpa *= scale
     tpr *= scale
     compile_schedule = compile(temp_time, temp_schedule)
