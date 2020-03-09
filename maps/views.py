@@ -45,7 +45,7 @@ def display(request):
     k_restaurants = 3 if have_breakfast else 2
 
     # places api search
-    radius = 16093
+    radius = 50000
     api = 'AIzaSyB0Y13M5LBvl2gVR0c0eZVOyPAgBaEj8cs'
     attrs = search_places(str(lat) + ',' + str(lon), radius, 'tourist_attraction', api)
     rests = search_places(str(lat) + ',' + str(lon), radius, 'restaurant', api)
