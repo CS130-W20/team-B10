@@ -1,7 +1,10 @@
 import random
 import numpy as np
 from collections import namedtuple
-from filter_scores import gen_syn_loc, get_dists, filter_attraction_list, Hyperparameters
+from .filter_scores import gen_syn_loc, get_dists, filter_attraction_list, Hyperparameters, Attraction
+
+
+FREE = Attraction(places_id='FREE', lat=0, lon=0, score=0, is_restaurant=False)
 
 
 #####################################################################
@@ -38,6 +41,8 @@ def next_loc(attr, distance, attrs, new_top_k_attr, is_rest):
         if i != attr and i.is_restaurant == is_rest and i in new_top_k_attr:
             attraction = new_top_k_attr.pop(new_top_k_attr.index(i))
             break
+    # if attraction == None:
+    #     return FREE, new_top_k_attr, 0
     return attraction, new_top_k_attr, distance[attrs.index(attraction)]
 
 
@@ -86,27 +91,30 @@ def scheduler(scores, distances, attractions, num_attr, num_rest, hotel, hours):
             break
     # greedly select the rest of the attractions
     num_rest_left = num_rest
+    num_attr_left = num_attr
     while len(attr_and_rest) != 0:
         curr_loc = temp_schedule[-1]
         curr_loc_idx = top_k_attr_rest_idx.index(curr_loc)
         distance_to_others = distances[curr_loc_idx]
         next_location = None
         next_dist = 0
-        if (time > 12 and num_rest_left == 2) or (time > 17 and num_rest_left == 1):
+        if (time > 12 and num_rest_left == 2) or (time > 17 and num_rest_left == 1) or (num_attr_left < num_rest_left):
             next_location, attr_and_rest, next_dist = next_loc(curr_loc, distance_to_others, attractions, attr_and_rest, True)
             time += tpr
             num_rest_left -= 1
         else:
             next_location, attr_and_rest, next_dist = next_loc(curr_loc, distance_to_others, attractions, attr_and_rest, False)
+            num_attr_left -= 1
             time += tpa
         temp_schedule.append(next_location)
         travel_time = next_dist/40
         temp_time.append(travel_time)
         time += travel_time
     # add time back to hotel
-    travel_time = hotel_to_attraction[top_k_attr_rest_idx.index(temp_schedule[-1])]/40
-    temp_time.append(travel_time)
-    time += travel_time
+    if temp_schedule[-1] != FREE:
+        travel_time = hotel_to_attraction[top_k_attr_rest_idx.index(temp_schedule[-1])]/40
+        temp_time.append(travel_time)
+        time += travel_time
     # calculate attraction scaling factor
     scale = (tid - sum(temp_time))/(tpr*num_rest+tpa*num_attr)
     tpa *= scale

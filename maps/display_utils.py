@@ -1,6 +1,9 @@
 from collections import namedtuple
+from .placesapi import search_places
 from .filter_scores import get_cluster_id_list, cluster_attraction_list, get_dists, filter_attraction_list
+from .scheduling import scheduler
 import datetime
+import numpy as np
 
 
 attr_info = namedtuple('attr_info', ['name','location'])
@@ -21,6 +24,14 @@ def days_between(d1, d2):
     d1 = datetime.datetime.strptime(d1, "%m/%d/%Y")
     d2 = datetime.datetime.strptime(d2, "%m/%d/%Y")
     return abs((d2 - d1).days)
+
+
+def time_string_to_decimals(time_string):
+    fields = time_string.split(":")
+    hours = fields[0] if len(fields) > 0 else 0.0
+    minutes = fields[1] if len(fields) > 1 else 0.0
+    seconds = fields[2] if len(fields) > 2 else 0.0
+    return float(hours) + (float(minutes) / 60.0) + (float(seconds) / pow(60.0, 2))
 
 
 def attr_to_tup(attrs, is_rest=False):
@@ -86,3 +97,9 @@ def format_schedule(start_date, end_date, attractions, schedule, tpa, tpr, hotel
         end_day = {'title': hotel_name, 'start':sleep_date+"T"+sleep, 'end':wake_datetime}
         events_list.append(end_day)
     return events_list
+
+
+def find_hotel(centroids, api, radius):
+    lat, lon = np.mean(centroids, axis=0)
+    hotels = search_places(str(lat) + ',' + str(lon), radius, 'lodging', api)
+    return hotels[0]
