@@ -40,3 +40,35 @@ def clustering(num_days, have_breakfast, k_attractions, attraction_list):
     attraction_list_clusters = cluster_attraction_list(cluster_id_list, attraction_list, num_days)
 
     return attraction_list_clusters, centroids
+
+
+Attraction = namedtuple('Attraction', ['places_id','lat','lon', 'score', 'is_restaurant'])
+attr_info = namedtuple('attr_info', ['name','location'])
+def format_schedule(start_date, end_date, attractions, schedule, tpa, tpr, hotel_name, wake, sleep):
+    events_list = []
+
+    start = {'title': hotel_name, 'start':start_date+"T00:00:00", 'end':start_date+"T"+wake}
+    events_list.append(start)
+    cur_time = datetime.datetime.strptime(start_date+"T"+wake, '%Y-%m-%dT%H:%M:%S')
+    for day in schedule:
+        for events in day:
+            if isinstance(events, (int, float)):
+                cur_time += datetime.timedelta(hours=events)
+            else:
+                name = attractions[events.places_id].name
+                start_time = cur_time.strftime('%Y-%m-%dT%H:%M:%S')
+                if events.is_restaurant:
+                    cur_time += datetime.timedelta(hours=tpr)
+                    name = 'Eat at: ' + name
+                else:
+                    cur_time += datetime.timedelta(hours=tpa)
+                end_time = cur_time.strftime('%Y-%m-%dT%H:%M:%S')
+                event = {'title': name, 'start':start_time, 'end':end_time}
+                events_list.append(event)
+        sleep_date = cur_time.strftime('%Y-%m-%d')
+        cur_time += datetime.timedelta(days=1)
+        wake_datetime = cur_time.strftime('%Y-%m-%d')+"T"+wake
+        cur_time = datetime.datetime.strptime(wake_datetime, '%Y-%m-%dT%H:%M:%S')
+        end_day = {'title': hotel_name, 'start':sleep_date+"T"+sleep, 'end':wake_datetime}
+        events_list.append(end_day)
+    return events_list
