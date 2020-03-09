@@ -80,6 +80,8 @@ def scheduler(scores, distances, attractions, num_attr, num_rest, hotel, hours):
     else:
         time += tpa
 
+    num_rest_left = num_rest
+    num_attr_left = num_attr
     for a in hotel_to_attraction_sorted:
         if top_k_attr_rest_idx[a].is_restaurant == is_restaurant:
             closest_attraction = attr_and_rest.pop(a)
@@ -88,17 +90,16 @@ def scheduler(scores, distances, attractions, num_attr, num_rest, hotel, hours):
             temp_schedule.append(closest_attraction)
             temp_time.append(closest_attraction_travel_time)
             time += closest_attraction_travel_time
+            num_rest_left -= 1
             break
     # greedly select the rest of the attractions
-    num_rest_left = num_rest
-    num_attr_left = num_attr
     while len(attr_and_rest) != 0:
         curr_loc = temp_schedule[-1]
         curr_loc_idx = top_k_attr_rest_idx.index(curr_loc)
         distance_to_others = distances[curr_loc_idx]
         next_location = None
         next_dist = 0
-        if (time > 12 and num_rest_left == 2) or (time > 17 and num_rest_left == 1) or (num_attr_left < num_rest_left):
+        if (time > 12 and num_rest_left == 2) or (time > 17 and num_rest_left == 1):
             next_location, attr_and_rest, next_dist = next_loc(curr_loc, distance_to_others, attractions, attr_and_rest, True)
             time += tpr
             num_rest_left -= 1
