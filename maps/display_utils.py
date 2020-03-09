@@ -69,7 +69,7 @@ def scheduling(attraction_list_clusters, k_attractions, k_restaurants, hotel, ho
     return schedules
 
 
-def format_schedule(start_date, end_date, attractions, schedule, tpa, tpr, hotel_name, wake, sleep):
+def format_schedule(start_date, end_date, placeid_dict, schedule_list, tpa_list, tpr_list, hotel_name, wake, sleep):
     events_list = []
     cur_time = datetime.datetime.strptime(start_date+"T"+wake, '%m/%d/%YT%H:%M:%S')
     start_date = cur_time.strftime('%Y-%m-%d')
@@ -114,5 +114,5 @@ def make_dict(attrs):
             a['name'] = ''
         if 'vicinity' not in a:
             a['vicinity'] = ''
-        place_id[a['place_id']] = attr_info(a['name'], a['vicinity'])
+        place_id[a['name']] = attr_info(a['name'], a['vicinity'])
     return place_id

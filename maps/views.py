@@ -62,19 +62,13 @@ def display(request):
     hotel_tup = attr_to_tup([hotel_dict], True)[0]
 
     # scheduling
-    schedules = scheduling(attraction_list_clusters, int(k_attractions), k_restaurants, hotel_tup, hours_mod)
-
+    schedule = scheduling(attraction_list_clusters, int(k_attractions), k_restaurants, hotel_tup, hours_mod)
 
     placeid_dict = make_dict(attrs+rests)
     schedule_list = []
     tpa_list = []
     tpr_list = []
-    hotel_name = hotels[0]['name']
-    #*******replace code below******#
-    schedule = [([0.4057137091336608, Attraction(places_id='asdf', lat=-2.180228205246836, lon=-4.001666389604681, score=9.053986522844989, is_restaurant=False), 0.618172714241416, Attraction(places_id='asdf', lat=-2.0089966827975267, lon=-4.454155118915776, score=7.692790899139238, is_restaurant=False), 0.18392860891624427, Attraction(places_id='asdf', lat=0.008785250829872604, lon=-9.653201360155721, score=4.362757934152183, is_restaurant=True), 0.6726163323730452, Attraction(places_id='asdf', lat=-4.136568449219548, lon=-3.0182693918292927, score=9.696860772658779, is_restaurant=False), 0.593984777603214, Attraction(places_id='asdf', lat=0.08295751400808903, lon=-13.795694847641734, score=8.201901844338309, is_restaurant=False), 0.7666097393775685, Attraction(places_id='asdf', lat=-4.377386483269133, lon=-11.215880617868779, score=8.520866189293686, is_restaurant=True), 0.2900272346606112, Attraction(places_id='asdf', lat=-7.857630136177638, lon=-11.921656543232203, score=9.091532756367794, is_restaurant=False), 0.7456485112476189], 1.3879094823357863, 0.8918754803838448),
-                ([0.4057137091336608, Attraction(places_id='asdf', lat=-2.180228205246836, lon=-4.001666389604681, score=9.053986522844989, is_restaurant=False), 0.618172714241416, Attraction(places_id='asdf', lat=-2.0089966827975267, lon=-4.454155118915776, score=7.692790899139238, is_restaurant=False), 0.18392860891624427, Attraction(places_id='asdf', lat=0.008785250829872604, lon=-9.653201360155721, score=4.362757934152183, is_restaurant=True), 0.6726163323730452, Attraction(places_id='asdf', lat=-4.136568449219548, lon=-3.0182693918292927, score=9.696860772658779, is_restaurant=False), 0.593984777603214, Attraction(places_id='asdf', lat=0.08295751400808903, lon=-13.795694847641734, score=8.201901844338309, is_restaurant=False), 0.7666097393775685, Attraction(places_id='asdf', lat=-4.377386483269133, lon=-11.215880617868779, score=8.520866189293686, is_restaurant=True), 0.2900272346606112, Attraction(places_id='asdf', lat=-7.857630136177638, lon=-11.921656543232203, score=9.091532756367794, is_restaurant=False), 0.7456485112476189], 1.3879094823357863, 0.8918754803838448)]
-    placeid_dict['asdf'] = attr_info('attr_name', 'loc_name')
-    #*******************************#
+    hotel_name = hotel_dict['name']
 
     for schedule_day in schedule:
         schedule_list.append(schedule_day[0])
