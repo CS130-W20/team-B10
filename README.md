@@ -18,7 +18,7 @@ Corey M Schafer for his fantastic Django tutorial series.
 
 ## Relevant Links 
 - Documentation link
-- Working URL (if any)
+- [Working URL](https://wander-io.com/)
 - anything else
 
 
