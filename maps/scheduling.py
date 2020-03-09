@@ -41,8 +41,11 @@ def next_loc(attr, distance, attrs, new_top_k_attr, is_rest):
         if i != attr and i.is_restaurant == is_rest and i in new_top_k_attr:
             attraction = new_top_k_attr.pop(new_top_k_attr.index(i))
             break
-    # if attraction == None:
-    #     return FREE, new_top_k_attr, 0
+    if attraction == None:
+        for i in attractions_sort:
+            if i != attr and i.is_restaurant == is_rest:
+                attraction = i
+                break
     return attraction, new_top_k_attr, distance[attrs.index(attraction)]
 
 
