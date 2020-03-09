@@ -46,25 +46,25 @@ def clustering(num_days, have_breakfast, k_attractions, attraction_list):
     return attraction_list_clusters, centroids
 
 
-def format_schedule(start_date, end_date, attractions, schedule, tpa_list, tpr_list, hotel_name, wake, sleep):
+def format_schedule(start_date, end_date, placeid_dict, schedule_list, tpa_list, tpr_list, hotel_name, wake, sleep):
     events_list = []
-
+    cur_time = datetime.datetime.strptime(start_date+"T"+wake, '%m/%d/%YT%H:%M:%S')
+    start_date = cur_time.strftime('%Y-%m-%d')
     start = {'title': hotel_name, 'start':start_date+"T00:00:00", 'end':start_date+"T"+wake}
     events_list.append(start)
-    cur_time = datetime.datetime.strptime(start_date+"T"+wake, '%Y-%m-%dT%H:%M:%S')
     day_num = 0
-    for day in schedule:
+    for day in schedule_list:
         for events in day:
             if isinstance(events, (int, float)):
                 cur_time += datetime.timedelta(hours=events)
             else:
-                name = attractions[events.places_id].name
+                name = placeid_dict[events.places_id].name
                 start_time = cur_time.strftime('%Y-%m-%dT%H:%M:%S')
                 if events.is_restaurant:
-                    cur_time += datetime.timedelta(hours=tpr[day_num])
+                    cur_time += datetime.timedelta(hours=tpr_list[day_num])
                     name = 'Eat at: ' + name
                 else:
-                    cur_time += datetime.timedelta(hours=tpa[day_num])
+                    cur_time += datetime.timedelta(hours=tpa_list[day_num])
                 end_time = cur_time.strftime('%Y-%m-%dT%H:%M:%S')
                 event = {'title': name, 'start':start_time, 'end':end_time}
                 events_list.append(event)
@@ -78,7 +78,7 @@ def format_schedule(start_date, end_date, attractions, schedule, tpa_list, tpr_l
     return events_list
 
 def make_dict(attrs):
-    place_id = {}
+    place_id = {'FREE': attr_info("Free Time", '')}
     for a in attrs:
         if 'name' not in a:
             a['name'] = ''
