@@ -128,9 +128,9 @@ def main():
     # clustering configurations
     num_days = 2
     # topk configurations
-    hours = (8,23)
+    hours = (8,21)
     have_breakfast = False
-    k_attractions = 10 # TODO: grab this from the maps API/ database
+    k_attractions = 5 # TODO: grab this from the maps API/ database
     k_restaurants = 3 if have_breakfast else 2 # TODO: grab this from the maps API/ database
     # filtering configurations
     num_iter = 5000
@@ -148,8 +148,14 @@ def main():
 
     compile_schedule, tpa, tpr = scheduler(S, L, attraction_list, k_attractions, k_restaurants, attraction_list[0], hours)
     print(compile_schedule)
-    print(tpa)
-    print(tpr)
+    print("tpa: " + str(tpa))
+    print("tpr: " + str(tpr))
+    travel_time = 0
+    for events in compile_schedule:
+        if isinstance(events, (int, float)):
+            travel_time += events
+    print("Time in the day to do things: " + str(hours[1]-hours[0]))
+    print("Time taken: " + str(tpa*k_attractions + tpr*k_restaurants + travel_time))
 
 if __name__ == '__main__':
     main()
