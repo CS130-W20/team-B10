@@ -17,6 +17,7 @@ def format_schedule(start_date, end_date, attractions, schedule, tpa, tpr, hotel
                 start_time = cur_time.strftime('%Y-%m-%dT%H:%M:%S')
                 if events.is_restaurant:
                     cur_time += datetime.timedelta(hours=tpr)
+                    name = 'Eat at: ' + name
                 else:
                     cur_time += datetime.timedelta(hours=tpa)
                 end_time = cur_time.strftime('%Y-%m-%dT%H:%M:%S')
