@@ -46,12 +46,13 @@ def clustering(num_days, have_breakfast, k_attractions, attraction_list):
     return attraction_list_clusters, centroids
 
 
-def format_schedule(start_date, end_date, attractions, schedule, tpa, tpr, hotel_name, wake, sleep):
+def format_schedule(start_date, end_date, attractions, schedule, tpa_list, tpr_list, hotel_name, wake, sleep):
     events_list = []
 
     start = {'title': hotel_name, 'start':start_date+"T00:00:00", 'end':start_date+"T"+wake}
     events_list.append(start)
     cur_time = datetime.datetime.strptime(start_date+"T"+wake, '%Y-%m-%dT%H:%M:%S')
+    day_num = 0
     for day in schedule:
         for events in day:
             if isinstance(events, (int, float)):
@@ -60,10 +61,10 @@ def format_schedule(start_date, end_date, attractions, schedule, tpa, tpr, hotel
                 name = attractions[events.places_id].name
                 start_time = cur_time.strftime('%Y-%m-%dT%H:%M:%S')
                 if events.is_restaurant:
-                    cur_time += datetime.timedelta(hours=tpr)
+                    cur_time += datetime.timedelta(hours=tpr[day_num])
                     name = 'Eat at: ' + name
                 else:
-                    cur_time += datetime.timedelta(hours=tpa)
+                    cur_time += datetime.timedelta(hours=tpa[day_num])
                 end_time = cur_time.strftime('%Y-%m-%dT%H:%M:%S')
                 event = {'title': name, 'start':start_time, 'end':end_time}
                 events_list.append(event)
@@ -73,4 +74,15 @@ def format_schedule(start_date, end_date, attractions, schedule, tpa, tpr, hotel
         cur_time = datetime.datetime.strptime(wake_datetime, '%Y-%m-%dT%H:%M:%S')
         end_day = {'title': hotel_name, 'start':sleep_date+"T"+sleep, 'end':wake_datetime}
         events_list.append(end_day)
+        day_num += 1
     return events_list
+
+def make_dict(attrs):
+    place_id = {}
+    for a in attrs:
+        if 'name' not in a:
+            a['name'] = ''
+        if 'vicinity' not in a:
+            a['vicinity'] = ''
+        place_id[a['place_id']] = attr_info(a['name'], a['vicinity'])
+    return place_id
