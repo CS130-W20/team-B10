@@ -41,7 +41,7 @@ def display(request):
     hours = (start_out_time, end_out_time)
     hours_mod = (time_string_to_decimals(start_out_time), time_string_to_decimals(end_out_time))
     k_attractions = survey_result['number_of_attractions']
-    have_breakfast = survey_result['have_breakfast']
+    have_breakfast = False if survey_result['have_breakfast'] == 'No' else True
     k_restaurants = 3 if have_breakfast else 2
 
     # places api search
@@ -63,6 +63,8 @@ def display(request):
 
     # scheduling
     schedule = scheduling(attraction_list_clusters, int(k_attractions), k_restaurants, hotel_tup, hours_mod)
+
+    print(schedule)
 
     placeid_dict = make_dict(attrs+rests)
     schedule_list = []

@@ -90,7 +90,10 @@ def scheduler(scores, distances, attractions, num_attr, num_rest, hotel, hours):
             temp_schedule.append(closest_attraction)
             temp_time.append(closest_attraction_travel_time)
             time += closest_attraction_travel_time
-            num_rest_left -= 1
+            if is_restaurant:
+                num_rest_left -= 1
+            else:
+                num_attr_left -= 1
             break
     # greedly select the rest of the attractions
     while len(attr_and_rest) != 0:
@@ -99,7 +102,7 @@ def scheduler(scores, distances, attractions, num_attr, num_rest, hotel, hours):
         distance_to_others = distances[curr_loc_idx]
         next_location = None
         next_dist = 0
-        if (time > 12 and num_rest_left == 2) or (time > 17 and num_rest_left == 1):
+        if (time > 12 and num_rest_left == 2) or (time > 17 and num_rest_left == 1) or num_attr_left == 0:
             next_location, attr_and_rest, next_dist = next_loc(curr_loc, distance_to_others, attractions, attr_and_rest, True)
             time += tpr
             num_rest_left -= 1
@@ -139,7 +142,7 @@ def main():
     # topk configurations
     hours = (8,21)
     have_breakfast = False
-    k_attractions = 5 # TODO: grab this from the maps API/ database
+    k_attractions = 10 # TODO: grab this from the maps API/ database
     k_restaurants = 3 if have_breakfast else 2 # TODO: grab this from the maps API/ database
     # filtering configurations
     num_iter = 5000
