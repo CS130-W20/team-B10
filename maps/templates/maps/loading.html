@@ -1,3 +1,4 @@
+{% load static %}
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -89,11 +90,11 @@
   </style>
   <body>
     <div class="preload">
-      <img class="airplane" src="../../static/maps/media/load_img/airplane.png" alt="airplane" />
+      <img class="airplane" src="{% static 'maps\media\load_img\airplane.png' %}" alt="airplane" />
       <h3>Creating Your Itinerary...</h3>
-      <img src="../../static/maps/media/load_img/cloud.png" alt="cloud1" class="cloud1" />
-      <img src="../../static/maps/media/load_img/cloud.png" alt="cloud2" class="cloud2" />
-      <img src="../../static/maps/media/load_img/cloud.png" alt="cloud3" class="cloud3" />
+      <img src="{% static 'maps\media\load_img\cloud.png' %}" alt="cloud1" class="cloud1" />
+      <img src="{% static 'maps\media\load_img\cloud.png' %}" alt="cloud2" class="cloud2" />
+      <img src="{% static 'maps\media\load_img\cloud.png' %}" alt="cloud3" class="cloud3" />
     </div>
     <script>
       // $('document').ready(function(){
