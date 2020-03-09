@@ -9,85 +9,85 @@
 
     <title>Wander.io</title>
   </head>
-  <body>
-    <style>
-    * {
-      padding: 0px;
-      margin: 0px;
-      box-sizing: border-box;
-    }
+  <style>
+  * {
+    padding: 0px;
+    margin: 0px;
+    box-sizing: border-box;
+  }
 
-    .preload {
-      position: fixed;
-      top: 0;
-      width: 100%;
-      height: 100vh;
-      background: #77b3d4;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      transition: opacity 0.5 ease;
-    }
+  .preload {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    height: 100vh;
+    background: #77b3d4;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: opacity 0.5 ease;
+  }
 
-    .cloud1,
-    .cloud2,
-    .cloud3 {
-      height: 100px;
-      position: absolute;
+  .cloud1,
+  .cloud2,
+  .cloud3 {
+    height: 100px;
+    position: absolute;
+    right: 0%;
+    z-index: -1;
+  }
+
+  .cloud1 {
+    top: 25%;
+    transform: translate(100%, -25%);
+    animation: clouds 3s ease infinite;
+  }
+
+  .cloud2 {
+    top: 50%;
+    transform: translate(100%, -50%);
+    animation: clouds 3s ease infinite 2s;
+  }
+
+  .cloud3 {
+    top: 75%;
+    transform: translate(100%, -75%);
+    animation: clouds 3s ease infinite 4s;
+  }
+
+  .airplane {
+    height: 200px;
+    animation: airplane 1s ease infinite alternate;
+  }
+
+  @keyframes airplane {
+    from {
+      transform: translateY(0px);
+    }
+    to {
+      transform: translateY(50px);
+    }
+  }
+
+  @keyframes clouds {
+    from {
       right: 0%;
-      z-index: -1;
     }
+    to {
+      right: 130%;
+    }
+  }
 
-    .cloud1 {
-      top: 25%;
-      transform: translate(100%, -25%);
-      animation: clouds 3s ease infinite;
-    }
-
-    .cloud2 {
-      top: 50%;
-      transform: translate(100%, -50%);
-      animation: clouds 3s ease infinite 2s;
-    }
-
-    .cloud3 {
-      top: 75%;
-      transform: translate(100%, -75%);
-      animation: clouds 3s ease infinite 4s;
-    }
-
-    .airplane {
-      height: 200px;
-      animation: airplane 1s ease infinite alternate;
-    }
-
-    @keyframes airplane {
-      from {
-        transform: translateY(0px);
-      }
-      to {
-        transform: translateY(50px);
-      }
-    }
-
-    @keyframes clouds {
-      from {
-        right: 0%;
-      }
-      to {
-        right: 130%;
-      }
-    }
-
-    .preload h3 {
-      position: absolute;
-      top: 75%;
-      transform: translateY(-75%);
-      color: white;
-      font-size: 30px;
-      font-family: sans-serif;
-    }
-    </style>
+  .preload h3 {
+    position: absolute;
+    top: 75%;
+    transform: translateY(-75%);
+    color: white;
+    font-size: 30px;
+    font-family: sans-serif;
+  }
+  </style>
+  <body>
     <div class="preload">
       <img class="airplane" src="../../static/maps/media/load_img/airplane.png" alt="airplane" />
       <h3>Creating Your Itinerary...</h3>
