@@ -15,8 +15,8 @@ def get_cluster_id_list(attraction_list, num_clusters):
     # use k-means clustering
     xy_list = np.array([(attraction.lat,attraction.lon) for attraction in attraction_list])
     kmeans = KMeans(n_clusters=num_clusters).fit(xy_list)
-    centroids = kmeans.cluster_centers_ 
-    cluster_id_list = kmeans.labels_ 
+    centroids = kmeans.cluster_centers_
+    cluster_id_list = kmeans.labels_
     return cluster_id_list, centroids
 
 def cluster_attraction_list(cluster_id_list, attraction_list, num_clusters):
@@ -28,7 +28,7 @@ def cluster_attraction_list(cluster_id_list, attraction_list, num_clusters):
     return attraction_list_clusters
 
 #####################################################################
-# Score Filtering/Curation 
+# Score Filtering/Curation
 #####################################################################
 def attraction_popping(scores, attractions, num_attr, num_rest):
     #np2int = lambda x: [int(y) for y in x]
@@ -62,7 +62,7 @@ def filter_attraction_list(attraction_list, L, l_avg, k_attractions, k_restauran
 
     # get scores
     S = np.array([attraction.score for attraction in attraction_list])
-    S_original = S.copy() 
+    S_original = S.copy()
     for i in range(hyperparameters.num_iter):
         S_idxs = attraction_popping(S, attraction_list, kna, knr)
         S_neighbors = ((l_avg-L)*S)[S_idxs]
@@ -77,16 +77,16 @@ def get_dists(attraction_list):
     # get l2 distance between all node pairs
     # Note: this code can be optimized in future releases
     N = len(attraction_list)
-    L = np.zeros(shape=(N,N)) 
+    L = np.zeros(shape=(N,N))
     xy_list = [(attraction.lat,attraction.lon) for attraction in attraction_list]
     for i in range(N):
         for j in range(i, N):
             coord1 = np.array(xy_list[i])
             coord2 = np.array(xy_list[j])
-            l = np.linalg.norm(coord1-coord2, ord=1) 
+            l = np.linalg.norm(coord1-coord2, ord=1)
             L[i][j] = l
             L[j][i] = l
-    return L 
+    return L
 
 def sigmoid(x):
     # sigmoid function
@@ -106,7 +106,7 @@ def gen_syn_loc(synthetic_params, restaurant_thresh):
         mu_x, mu_y = mu
         sigma_x, sigma_y = sigma
         for _ in range(num_samples):
-            # sample data points 
+            # sample data points
             x = random.gauss(mu_x, sigma_x)
             y = random.gauss(mu_y, sigma_y)
             s = 10*random.random()
@@ -123,19 +123,19 @@ def gen_syn_loc(synthetic_params, restaurant_thresh):
     return attraction_list
 
 #####################################################################
-# Plotting Utilities 
+# Plotting Utilities
 #####################################################################
 def plot(S, attraction_list, ax, k=None):
     color = 'grey'
     color_sel = 'red'
     if k is None:
-        # setting up plottig parameters 
+        # setting up plottig parameters
         x_list = [attraction.lat for attraction in attraction_list]
         y_list = [attraction.lon for attraction in attraction_list]
         s_list = S
         plot_helper(x_list, y_list, s_list, ax, color)
     else:
-        # setting up plottig parameters 
+        # setting up plottig parameters
         s_list = S
         s_list_topk = (np.array(s_list).argsort()[-k:][::-1]).tolist()
         x_list1, y_list1, s_list1 = [], [], []
@@ -160,7 +160,7 @@ def plot_helper(x_list, y_list, s_list, ax, color):
         ax.annotate('{0:.2f}'.format(s), (x_list[i], y_list[i]))
 
 #####################################################################
-# Main Function 
+# Main Function
 #####################################################################
 def main():
     # TODO: |places| < |days|
@@ -219,7 +219,7 @@ def main():
         plot(S, attraction_list, ax2, k=5)
         plt.show()
         pass
-    
+
     return S, L, attraction_list, k_attractions, k_restaurants, attraction_hotel, hours
 
 if __name__ == '__main__':

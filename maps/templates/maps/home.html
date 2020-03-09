@@ -29,6 +29,8 @@
           <div class="col">
             <label for="destination">I want to travel to</label>
             <input type="text" class="form-control" name="destination" id="destination" placeholder="Destination">
+            <input type="hidden" name="cityLat" id="cityLat" value="">
+            <input type="hidden" name="cityLng" id="cityLng" value="">
           </div>
         </div>
 
@@ -69,7 +71,6 @@
     autocomplete.setTypes(['(cities)']);
     google.maps.event.addListener(autocomplete, 'place_changed', function () {
         var place = autocomplete.getPlace();
-        document.getElementById('city2').value = place.name;
         document.getElementById('cityLat').value = place.geometry.location.lat();
         document.getElementById('cityLng').value = place.geometry.location.lng();
     });
