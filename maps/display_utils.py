@@ -72,7 +72,7 @@ def scheduling(attraction_list_clusters, k_attractions, k_restaurants, hotel, ho
 def format_schedule(start_date, end_date, placeid_dict, schedule_list, tpa_list, tpr_list, hotel_name, wake, sleep):
     restaurant_color = "#1abc9c"
     attraction_color = "#3498db"
-    hotel_color = "#9b59b6"
+    hotel_color = "#f39c12"
     events_list = []
     cur_time = datetime.datetime.strptime(start_date+"T"+wake, '%m/%d/%YT%H:%M:%S')
     start_date = cur_time.strftime('%Y-%m-%d')
