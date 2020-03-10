@@ -70,10 +70,13 @@ def scheduling(attraction_list_clusters, k_attractions, k_restaurants, hotel, ho
 
 
 def format_schedule(start_date, end_date, placeid_dict, schedule_list, tpa_list, tpr_list, hotel_name, wake, sleep):
+    restaurant_color = "#2ecc71"
+    attraction_color = "#3498db"
+    hotel_color = "#9b59b6"
     events_list = []
     cur_time = datetime.datetime.strptime(start_date+"T"+wake, '%m/%d/%YT%H:%M:%S')
     start_date = cur_time.strftime('%Y-%m-%d')
-    start = {'title': hotel_name, 'start':start_date+"T00:00:00", 'end':start_date+"T"+wake, 'backgroundColor':'#D3D3D3'}
+    start = {'title': hotel_name, 'start':start_date+"T00:00:00", 'end':start_date+"T"+wake, 'backgroundColor': hotel_color}
     events_list.append(start)
     day_num = 0
     for day in schedule_list:
@@ -87,12 +90,11 @@ def format_schedule(start_date, end_date, placeid_dict, schedule_list, tpa_list,
                     cur_time += datetime.timedelta(hours=tpr_list[day_num])
                     name = 'Eat at: ' + name
                     end_time = cur_time.strftime('%Y-%m-%dT%H:%M:%S')
-                    color = '#33CC99'
-                    event = {'title': name, 'start':start_time, 'end':end_time, 'backgroundColor':color}
+                    event = {'title': name, 'start':start_time, 'end':end_time, 'backgroundColor':restaurant_color}
                 else:
                     cur_time += datetime.timedelta(hours=tpa_list[day_num])
                     end_time = cur_time.strftime('%Y-%m-%dT%H:%M:%S')
-                    event = {'title': name, 'start':start_time, 'end':end_time}
+                    event = {'title': name, 'start':start_time, 'end':end_time, 'backgroundColor':attraction_color}
                 events_list.append(event)
         sleep_date = cur_time.strftime('%Y-%m-%d')
         cur_time += datetime.timedelta(days=1)

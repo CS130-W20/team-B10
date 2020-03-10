@@ -26,7 +26,8 @@
       navLinks: true, // can click day/week names to navigate views
       editable: true,
       eventLimit: true, // allow "more" link when too many events
-      events: {{itinerary_in_json|safe}}
+      events: {{itinerary_in_json|safe}},
+      textColor: '#ecf0f1'
     });
 
     calendar.render();
@@ -34,12 +35,6 @@
 
 </script>
 <style>
-.fc-title{
-    font-size: 1.2em;
-}
-.fc-time{
-    font-size: 1.0em;
-}
 #calendar {
     margin: 0 auto;
 }
