@@ -14,12 +14,12 @@ def search_places(location, radius, types, api):
     res = requests.get(endpoint_url, params = params)
     results =  json.loads(res.content)
     places.extend(results['results'])
-    time.sleep(2)
+    time.sleep(1)
     while "next_page_token" in results:
         params['pagetoken'] = results['next_page_token']
         res = requests.get(endpoint_url, params = params)
         results =  json.loads(res.content)
         places.extend(results['results'])
-        time.sleep(2)
+        time.sleep(1)
 
     return places

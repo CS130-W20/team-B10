@@ -6,7 +6,6 @@ urlpatterns = [
     path('survey/', views.survey, name='site-survey'),
     path('loading/', views.loading, name='site-loading'),
     path('display/', views.display, name='site-display'),
-    path('maps/', views.maps, name='site-maps'),
     path('about/', views.about, name='site-about'),
     path('error/', views.error, name='site-error'),
 ]

@@ -34,7 +34,6 @@
                 <div class="collapse navbar-collapse" id="navbarToggle">
                     <div class="navbar-nav mr-auto">
                         <a class="nav-item nav-link" href="{% url 'site-display' %}">Itinerary</a>
-                        <a class="nav-item nav-link" href="{% url 'site-maps' %}">Maps</a>
                         <a class="nav-item nav-link" href="{% url 'site-about' %}">About</a>
                     </div>
                     <!-- Navbar Right Side -->
@@ -51,7 +50,7 @@
             </div>
         </nav>
     </header>
-    <main role="main" class="container">
+    <main role="main" class="container h-75">
         {% if messages %}
         {% for message in messages %}
         <div class="alert alert-{{ message.tags }}">
