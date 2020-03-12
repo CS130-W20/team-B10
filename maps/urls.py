@@ -7,4 +7,5 @@ urlpatterns = [
     path('loading/', views.loading, name='site-loading'),
     path('display/', views.display, name='site-display'),
     path('about/', views.about, name='site-about'),
+    path('error/', views.error, name='site-error'),
 ]
