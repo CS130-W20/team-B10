@@ -3,7 +3,9 @@ Intelligently generates a travel itinerary with minimal user inputs.
 
 ## Directory Structure
 /maps contains the python backend logic
+
 /maps/templates/maps contains the frontend html files
+
 /maps/static/maps contains the css, javascript and media files
 
 
